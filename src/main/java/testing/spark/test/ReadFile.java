@@ -5,6 +5,8 @@
  */
 package testing.spark.test;
 
+
+import org.apache.spark.sql.functions;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.SparkConf;
 import org.apache.spark.sql.DataFrame;
@@ -28,8 +30,11 @@ public class ReadFile implements DataFrameInterface {
                 .setAppName("spark-test");
         JavaSparkContext sc = new JavaSparkContext(conf);
         SQLContext sqlContext = new org.apache.spark.sql.SQLContext(sc);
-        DataFrame df = sqlContext.read().json(this.datasource);   
-        return df;
+        DataFrame df = sqlContext.read().json(this.datasource);
+        DataFrame df_flat = df.withColumn("array_val",
+                functions.explode(df.col("array")))
+                .filter("array_val = 3");
+        return df_flat;
     }
    
     public static void main(String args[]) { 
